@@ -1,0 +1,114 @@
+﻿@using HospitalSystem.ViewModels
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+@model IEnumerable<DoctorWithSpecialtyViewModel>
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="get" asp-action="BookAppointment" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="searchName" class="form-control" 
+               placeholder="Search doctors by name..." 
+               value="@ViewBag.SearchName">
+               <div class="col-md-2 ">
+                    <label class="form-label">Specialties</label>
+                    <select name="specialystFilter" class="form-select">
+                                        <option value="all" >All</option>
+
+                          @foreach (var item in ViewBag.Specialties)
+                                {
+                                    if (item.Id==ViewBag.specialystFilter)
+                                    {
+                                        
+                                        <option value="@item.Id" selected>@item.Name</option>
+                                    }
+                                    else
+                                    {
+                                        
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                    </select>
+                </div>
+    
+    </div>
+     <div class="input-group-append mt-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a asp-action="BookAppointment" class="btn btn-secondary">Clear</a>
+    </div>
+</form>
+<div class="row">
+            @foreach (var item in Model)
+            {
+    <div class="col-md-4 mb-4">
+
+        <div class="card" style="height:635px">
+            <img class="card-img" src="~/images/@item.MainImg" style="width: 100%; height: auto;" alt="Doctor Image">
+            <div class="card-body">
+                <h5 class="card-title">@item.FullName</h5>
+                <p class="card-text">Specialization: @item.SpecialtyName</p>
+<a href="/Doctor/CompleteAppointment?DoctorName=@item.FullName&DocId=@item.DocId" class="btn btn-primary">
+    Book Appointment
+</a>            </div>
+        </div>    
+    </div>
+            }
+
+   <!-- Pagination Section -->
+    @if (ViewBag.totalPage >= 1)
+    {
+        <div class="container mt-5">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Button -->
+                    <li class="page-item @(ViewBag.currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" 
+                           href="@Url.Action("bookappointment", new { 
+                               page = ViewBag.currentPage - 1,
+                               searchName = ViewBag.SearchName,
+                               specialystFilter = ViewBag.specialystFilter
+                           })" 
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    @for (int i = 1; i <= ViewBag.totalPage; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.currentPage ? "active" : "")">
+                            <a class="page-link" 
+                               href="@Url.Action("bookappointment", new { 
+                                   page = i,
+                                   searchName = ViewBag.SearchName,
+                                   specialystFilter = ViewBag.specialystFilter
+                               })">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <!-- Next Button -->
+                    <li class="page-item @(ViewBag.currentPage == ViewBag.totalPage ? "disabled" : "")">
+                        <a class="page-link" 
+                           href="@Url.Action("bookappointment", new { 
+                               page = ViewBag.currentPage + 1,
+                               searchName = ViewBag.SearchName,
+                               specialystFilter = ViewBag.specialystFilter
+                           })" 
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- Page Info -->
+            <div class="text-center text-muted mt-2">
+                Page @ViewBag.currentPage of @ViewBag.totalPage - Showing @Model.Count() doctors
+            </div>
+        </div>
+    }
+        
+</div>

@@ -3,6 +3,16 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to Our Hospital</h1>
+    <p>Thank you for choosing our hospital for your healthcare needs.</p>
+    <p>Here, we strive to provide the highest quality medical care to our patients.</p>
+    <p>Learn more about our services and specialties:</p>
+    <ul class="list-group">
+        @foreach (var item in ViewBag.specializations)
+        {
+                    <li class="list-group-item"id="@item.Id">@item.Name</li>
+
+        }
+    </ul>
+    <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
 </div>

@@ -1,0 +1,104 @@
+﻿@{
+    var validDates = ViewBag.ValidDates as List<DateTime>;
+}
+
+<h1>Complete Appointment With Dr. @ViewBag.DoctorName</h1>
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle text-success me-3 fs-4"></i>
+                    <span id="successMessage"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<a asp-controller="Doctor" asp-action="AppointmentDetails" class="btn btn-primary mb-2">
+    Showing All Apointment
+</a>
+<form id="appointmentForm" method="post" action="/Doctor/CompleteAppointment">
+    <input type="hidden" name="DocId" value="@ViewBag.DocId" />
+
+    <div class="form-group">
+        <label for="patientName">Patient Name:</label>
+        <input type="text" class="form-control" id="patientName" name="PatientName" required />
+    </div>
+
+    <div class="form-group">
+        <label for="appointmentDate">Appointment Date:</label>
+        <input type="date" class="form-control" id="appointmentDate" name="AppointmentDate" required />
+    </div>
+
+    <div class="form-group">
+        <label for="appointmentTime">Appointment Time:</label>
+        <input type="time" 
+               class="form-control" 
+               id="appointmentTime" 
+               name="AppointmentTime"
+               min="@($"{ViewBag.StartTime:00}:00")" 
+               max="@($"{ViewBag.EndTime:00}:00")"
+               step="1800" required />
+
+        <small class="form-text text-muted">
+            30-minute slots from @ViewBag.StartTime:00 to @ViewBag.EndTime:00
+        </small>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary" id="submitBtn">Complete Appointment</button>
+</form>
+
+@section Scripts {
+    <script>
+                document.addEventListener('DOMContentLoaded', function() {
+            // Check for success message from TempData
+            const successMessage = '@(TempData["SuccessMessage"] ?? "")';
+            if (successMessage) {
+                document.getElementById('successMessage').textContent = successMessage;
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('appointmentDate');
+            const today = new Date();
+            const todayFormatted = today.toISOString().split('T')[0];
+            dateInput.setAttribute('min', todayFormatted);
+
+            dateInput.addEventListener('change', function() {
+                validateAppointmentDate(this.value);
+            });
+
+            document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+                if (!validateAppointmentDate(dateInput.value)) {
+                    e.preventDefault();
+                    alert('Please select a valid appointment date (Sunday to Thursday only). Friday and Saturday are holidays.');
+                    dateInput.focus();
+                }
+            });
+
+            function validateAppointmentDate(selectedDate) {
+                if (!selectedDate) return true;
+                const date = new Date(selectedDate);
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek === 5 || dayOfWeek === 6) {
+                    dateInput.setCustomValidity('Appointments are not available on Fridays and Saturdays. Please select Sunday to Thursday.');
+                    return false;
+                } else {
+                    dateInput.setCustomValidity('');
+                    return true;
+                }
+            }
+        });
+    </script>
+}
